@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ReadDwgMetadataRequest(BaseModel):
@@ -65,3 +65,29 @@ class GenerateElectricalBlueprintRequest(BaseModel):
     legend_offset_x: float = 5000.0
     legend_offset_y: float = 0.0
     drawing_standard: str = "IEC_60617"
+
+
+class AutoCadCommandRequest(BaseModel):
+    dwg_path: str
+    operation: Literal[
+        "draw_line",
+        "draw_circle",
+        "draw_rectangle",
+        "draw_polyline",
+        "add_text",
+        "add_hatch",
+        "add_dimension",
+        "insert_block",
+        "create_layer",
+        "zoom_extents",
+        "send_command",
+    ]
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    execution_mode: Literal["auto", "com", "core_console"] = "auto"
+
+    @field_validator("parameters")
+    @classmethod
+    def _validate_parameters(cls, value: dict[str, Any]) -> dict[str, Any]:
+        if len(value) > 50:
+            raise ValueError("Too many parameters supplied")
+        return value

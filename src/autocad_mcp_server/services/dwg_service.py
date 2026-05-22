@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from autocad_mcp_server.models.requests import (
+    AutoCadCommandRequest,
     ExecuteAutolispRequest,
     ManageLayersAndBlocksRequest,
     QueryGeometryRequest,
@@ -12,6 +13,7 @@ from autocad_mcp_server.models.requests import (
 )
 from autocad_mcp_server.models.runtime import JobResult
 from autocad_mcp_server.security.path_sandbox import PathSandbox
+from autocad_mcp_server.services.cad_command_service import CadCommandService
 from autocad_mcp_server.services.core_console_manager import CoreConsoleManager
 from autocad_mcp_server.services.geometry_query_service import GeometryQueryService
 from autocad_mcp_server.services.interop_manager import InteropManager
@@ -31,6 +33,7 @@ class DWGService:
         geometry_query_service: GeometryQueryService,
         layer_block_service: LayerBlockService,
         lisp_runner: LispRunner,
+        cad_command_service: CadCommandService,
     ) -> None:
         self.sandbox = sandbox
         self.core_console_manager = core_console_manager
@@ -39,6 +42,7 @@ class DWGService:
         self.geometry_query_service = geometry_query_service
         self.layer_block_service = layer_block_service
         self.lisp_runner = lisp_runner
+        self.cad_command_service = cad_command_service
 
     @staticmethod
     def _ensure_core_console_success(result: dict[str, Any]) -> None:
@@ -150,3 +154,22 @@ class DWGService:
             )
         except ToolExecutionFailure:
             raise
+
+    async def execute_cad_command(self, request: AutoCadCommandRequest) -> JobResult:
+        drawing_path = self.sandbox.validate(request.dwg_path)
+        lisp = self.cad_command_service.build_lisp(request.operation, request.parameters)
+        validated = self.lisp_runner.validate(lisp)
+
+        result = await self.core_console_manager.run_script(
+            drawing_path,
+            validated + "\n(princ)\n",
+            prefix=f"cad-{request.operation}",
+        )
+        self._ensure_core_console_success(result)
+        payload = {
+            "drawing": str(drawing_path),
+            "operation": request.operation,
+            "stdout": result["stdout"],
+            "stderr": result["stderr"],
+        }
+        return JobResult(success=True, execution_mode="core_console", payload=payload)
