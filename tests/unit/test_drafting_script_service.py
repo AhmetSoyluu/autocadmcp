@@ -33,6 +33,22 @@ def test_drafting_service_generates_mixed_lsp_and_scr(tmp_path: Path) -> None:
     assert '._rectang' in lsp_text
 
 
+def test_drafting_service_includes_bypass_and_break_logic(tmp_path: Path) -> None:
+    service = DraftingScriptService(TempWorkspaceManager(tmp_path), LispPolicy(max_chars=40000, max_depth=64))
+    request = GenerateElectricalBlueprintRequest(
+        project_name='Bypass Test',
+        discipline='mixed',
+        systems=['data', 'wall'],
+        output_name='bypass_test',
+    )
+
+    payload = service.generate(request)
+    lsp_text = Path(payload['lsp_path']).read_text(encoding='utf-8')
+
+    assert '._break' in lsp_text
+    assert '._arc' in lsp_text
+
+
 def test_drafting_service_writes_manifest_with_artifacts(tmp_path: Path) -> None:
     service = DraftingScriptService(TempWorkspaceManager(tmp_path), LispPolicy(max_chars=40000, max_depth=64))
     request = GenerateElectricalBlueprintRequest(
