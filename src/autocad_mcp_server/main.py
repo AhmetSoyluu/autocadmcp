@@ -43,17 +43,22 @@ def build_server() -> FastMCP:
     core_console_adapter = CoreConsoleAdapter(
         discover_executable(settings.accoreconsole_path, "accoreconsole.exe")
     )
+    audit_file = settings.audit_log_dir / "audit.jsonl"
     core_console_manager = CoreConsoleManager(
         adapter=core_console_adapter,
         queue=queue,
         workspace_manager=workspace_manager,
         timeout_seconds=settings.core_console_timeout_seconds,
         keep_failed_workspaces=settings.keep_failed_workspaces,
+        supervisor=supervisor,
+        audit_file=audit_file,
     )
     interop_manager = InteropManager(
         adapter=ComAdapter(),
         visible=settings.com_visible,
         launch_if_missing=settings.com_launch_if_missing,
+        supervisor=supervisor,
+        audit_file=audit_file,
     )
     service = DWGService(
         sandbox=sandbox,

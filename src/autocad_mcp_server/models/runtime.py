@@ -33,4 +33,11 @@ class RuntimeState:
     last_core_console_success_at: str | None = None
     last_com_healthcheck_at: str | None = None
     retained_failure_workspaces: int = 0
+    retained_failure_workspaces_count: int = 0
     last_recovery_action: str | None = None
+    active_project_wdp: str | None = None
+    electrical_standard: str | None = None
+    wd_m_initialized: bool = False
+    last_error_context: dict[str, Any] | None = None
+    total_jobs_processed: int = 0
+    last_failure_reason: str | None = None

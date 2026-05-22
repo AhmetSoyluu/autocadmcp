@@ -40,3 +40,15 @@ def test_core_console_sentinel_validation_logic() -> None:
         f"{CoreConsoleManager.SENTINEL_END}\n"
     )
     assert CoreConsoleManager._validate_sentinel(CoreConsoleManager, sample)
+
+
+def test_electrical_runtime_fields_can_be_represented() -> None:
+    payload = {
+        'active_project_wdp': 'C:/CAD/demo.wdp',
+        'electrical_standard': 'IEC_60617',
+        'wd_m_initialized': True,
+        'retained_failure_workspaces_count': 1,
+    }
+    assert payload['active_project_wdp'].endswith('.wdp')
+    assert payload['electrical_standard'] == 'IEC_60617'
+    assert payload['wd_m_initialized'] is True

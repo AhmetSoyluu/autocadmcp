@@ -5,14 +5,25 @@ from pathlib import Path
 from typing import Any
 
 from autocad_mcp_server.adapters.com_adapter import ComAdapter
+from autocad_mcp_server.services.runtime_supervisor import RuntimeSupervisor
+from autocad_mcp_server.utils.audit import AuditRecord, write_audit_record
 from autocad_mcp_server.utils.errors import AutoCADUnavailable, ToolExecutionFailure
 
 
 class InteropManager:
-    def __init__(self, adapter: ComAdapter, visible: bool, launch_if_missing: bool) -> None:
+    def __init__(
+        self,
+        adapter: ComAdapter,
+        visible: bool,
+        launch_if_missing: bool,
+        supervisor: RuntimeSupervisor,
+        audit_file: Path,
+    ) -> None:
         self.adapter = adapter
         self.visible = visible
         self.launch_if_missing = launch_if_missing
+        self.supervisor = supervisor
+        self.audit_file = audit_file
         self._lock = threading.RLock()
 
     def _connect(self) -> Any:
@@ -32,12 +43,34 @@ class InteropManager:
             try:
                 self.adapter.initialize_com()
                 app = self._connect()
+                self.supervisor.mark_com_health(True)
+                self.supervisor.record_electrical_context(
+                    active_project_wdp=str(drawing_path.with_suffix('.wdp')),
+                    wd_m_initialized=True,
+                )
                 document = self.adapter.open_document(app, drawing_path)
                 self.adapter.send_command(document, lisp_source)
+                self.supervisor.record_job_success()
+                write_audit_record(
+                    AuditRecord(
+                        tool_name="execute_autolisp",
+                        dwg_path=str(drawing_path),
+                        execution_mode="com",
+                        outcome="success",
+                        message="COM AutoLISP submitted",
+                        operation_id="com-lisp",
+                        electrical_context={"active_project_wdp": str(drawing_path.with_suffix('.wdp')), "wd_m_initialized": True},
+                    ),
+                    self.audit_file,
+                )
                 return {"status": "submitted", "drawing": str(drawing_path)}
-            except AutoCADUnavailable:
+            except AutoCADUnavailable as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": "execute_autolisp"})
                 raise
             except Exception as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": "execute_autolisp"})
                 raise ToolExecutionFailure(f"COM AutoLISP execution failed: {exc}") from exc
             finally:
                 if document is not None:
@@ -53,16 +86,38 @@ class InteropManager:
             try:
                 self.adapter.initialize_com()
                 app = self._connect()
+                self.supervisor.mark_com_health(True)
+                self.supervisor.record_electrical_context(
+                    active_project_wdp=str(drawing_path.with_suffix('.wdp')),
+                    wd_m_initialized=True,
+                )
                 document = self.adapter.open_document(app, drawing_path)
+                self.supervisor.record_job_success()
+                write_audit_record(
+                    AuditRecord(
+                        tool_name="manage_layers_and_blocks",
+                        dwg_path=str(drawing_path),
+                        execution_mode="com",
+                        outcome="success",
+                        message=f"COM action submitted: {action}",
+                        operation_id="com-layers-blocks",
+                        electrical_context={"active_project_wdp": str(drawing_path.with_suffix('.wdp')), "wd_m_initialized": True},
+                    ),
+                    self.audit_file,
+                )
                 return {
                     "status": "submitted",
                     "action": action,
                     "parameters": parameters,
                     "drawing": str(document.FullName),
                 }
-            except AutoCADUnavailable:
+            except AutoCADUnavailable as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": action})
                 raise
             except Exception as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": action})
                 raise ToolExecutionFailure(f"COM layer/block operation failed: {exc}") from exc
             finally:
                 if document is not None:

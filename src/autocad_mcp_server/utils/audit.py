@@ -17,6 +17,8 @@ class AuditRecord:
     outcome: str
     message: str
     operation_id: str
+    error_context: dict[str, Any] | None = None
+    electrical_context: dict[str, Any] | None = None
 
 
 def write_audit_record(record: AuditRecord, audit_file: Path | None = None) -> None:
