@@ -1,8 +1,8 @@
 import os
-from pathlib import Path
 
 import pytest
 
+from autocad_mcp_server.services.core_console_manager import CoreConsoleManager
 from autocad_mcp_server.services.metadata_extractor import MetadataExtractor
 
 
@@ -24,3 +24,19 @@ def test_metadata_script_contains_markers() -> None:
     script = MetadataExtractor().build_script(include_text=True, include_blocks=True, include_layers=True)
     assert "MCP_META_BEGIN" in script
     assert "MCP_META_END" in script
+
+
+def test_core_console_wrapper_adds_sentinel_markers() -> None:
+    wrapped = CoreConsoleManager._wrap_script(CoreConsoleManager, '(princ "hello")')
+    assert CoreConsoleManager.SENTINEL_BEGIN in wrapped
+    assert CoreConsoleManager.SENTINEL_OK in wrapped
+    assert CoreConsoleManager.SENTINEL_END in wrapped
+
+
+def test_core_console_sentinel_validation_logic() -> None:
+    sample = (
+        f"{CoreConsoleManager.SENTINEL_BEGIN}\n"
+        f"{CoreConsoleManager.SENTINEL_OK}\n"
+        f"{CoreConsoleManager.SENTINEL_END}\n"
+    )
+    assert CoreConsoleManager._validate_sentinel(CoreConsoleManager, sample)

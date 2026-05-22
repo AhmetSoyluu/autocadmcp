@@ -12,3 +12,4 @@ class ToolResponse(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
     warnings: list[str] = Field(default_factory=list)
     error: str | None = None
+    error_code: str | None = None

@@ -11,6 +11,21 @@ def test_rejects_shell_primitives() -> None:
         policy.validate('(vl-shell-execute "cmd.exe")')
 
 
+def test_rejects_blocked_token_in_form() -> None:
+    policy = LispPolicy(max_chars=1000, max_depth=10)
+
+    with pytest.raises(PolicyViolation):
+        policy.validate('(eval (quote (+ 1 2)))')
+
+
+def test_ignores_blocked_word_inside_string() -> None:
+    policy = LispPolicy(max_chars=1000, max_depth=10)
+
+    validated = policy.validate('(princ "do not eval this word")')
+
+    assert validated == '(princ "do not eval this word")'
+
+
 def test_accepts_simple_expression() -> None:
     policy = LispPolicy(max_chars=1000, max_depth=10)
 

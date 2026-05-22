@@ -17,13 +17,20 @@ class InteropManager:
 
     def _connect(self) -> Any:
         try:
-            return self.adapter.connect(visible=self.visible)
+            return self.adapter.connect(
+                visible=self.visible,
+                launch_if_missing=self.launch_if_missing,
+            )
+        except AutoCADUnavailable:
+            raise
         except Exception as exc:
             raise AutoCADUnavailable(f"Unable to connect to AutoCAD COM session: {exc}") from exc
 
     def run_lisp(self, drawing_path: Path, lisp_source: str) -> dict[str, str]:
         with self._lock:
+            document = None
             try:
+                self.adapter.initialize_com()
                 app = self._connect()
                 document = self.adapter.open_document(app, drawing_path)
                 self.adapter.send_command(document, lisp_source)
@@ -32,10 +39,19 @@ class InteropManager:
                 raise
             except Exception as exc:
                 raise ToolExecutionFailure(f"COM AutoLISP execution failed: {exc}") from exc
+            finally:
+                if document is not None:
+                    try:
+                        self.adapter.close_document(document, save_changes=False)
+                    except Exception:
+                        pass
+                self.adapter.uninitialize_com()
 
     def manage_layers_and_blocks(self, drawing_path: Path, action: str, parameters: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
+            document = None
             try:
+                self.adapter.initialize_com()
                 app = self._connect()
                 document = self.adapter.open_document(app, drawing_path)
                 return {
@@ -48,3 +64,10 @@ class InteropManager:
                 raise
             except Exception as exc:
                 raise ToolExecutionFailure(f"COM layer/block operation failed: {exc}") from exc
+            finally:
+                if document is not None:
+                    try:
+                        self.adapter.close_document(document, save_changes=False)
+                    except Exception:
+                        pass
+                self.adapter.uninitialize_com()

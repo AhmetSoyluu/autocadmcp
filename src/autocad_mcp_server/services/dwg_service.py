@@ -40,6 +40,11 @@ class DWGService:
         self.layer_block_service = layer_block_service
         self.lisp_runner = lisp_runner
 
+    @staticmethod
+    def _ensure_core_console_success(result: dict[str, Any]) -> None:
+        if not bool(result.get("sentinel_ok")):
+            raise ToolExecutionFailure("Core Console output sentinel validation failed")
+
     async def read_dwg_metadata(self, request: ReadDwgMetadataRequest) -> JobResult:
         drawing_path = self.sandbox.validate(request.dwg_path)
         script = self.metadata_extractor.build_script(
@@ -48,6 +53,7 @@ class DWGService:
             include_layers=request.include_layers,
         )
         result = await self.core_console_manager.run_script(drawing_path, script, prefix="metadata")
+        self._ensure_core_console_success(result)
         payload = self.metadata_extractor.extract_from_text(
             drawing_path,
             str(result["stdout"]),
@@ -61,6 +67,7 @@ class DWGService:
         drawing_path = self.sandbox.validate(request.dwg_path)
         script = self.geometry_query_service.build_script(request)
         result = await self.core_console_manager.run_script(drawing_path, script, prefix="geometry")
+        self._ensure_core_console_success(result)
         payload = self.geometry_query_service.parse_output(drawing_path, str(result["stdout"]))
         return JobResult(success=True, execution_mode="core_console", payload=payload)
 
@@ -70,6 +77,7 @@ class DWGService:
         if request.target == "background":
             script = self.lisp_runner.build_core_console_script(validated)
             result = await self.core_console_manager.run_script(drawing_path, script, prefix="lisp")
+            self._ensure_core_console_success(result)
             payload: dict[str, Any] = {
                 "drawing": str(drawing_path),
                 "stdout": result["stdout"],
@@ -83,6 +91,7 @@ class DWGService:
         except AutoCADUnavailable:
             script = self.lisp_runner.build_core_console_script(validated)
             result = await self.core_console_manager.run_script(drawing_path, script, prefix="lisp-fallback")
+            self._ensure_core_console_success(result)
             payload = {
                 "drawing": str(drawing_path),
                 "stdout": result["stdout"],
@@ -102,6 +111,7 @@ class DWGService:
         validated = self.lisp_runner.validate(lisp)
         if request.execution_mode == "core_console":
             result = await self.core_console_manager.run_script(drawing_path, validated + "\n(princ)\n", prefix="layers")
+            self._ensure_core_console_success(result)
             payload = {
                 "drawing": str(drawing_path),
                 "action": request.action,
@@ -124,6 +134,7 @@ class DWGService:
                 validated + "\n(princ)\n",
                 prefix="layers-fallback",
             )
+            self._ensure_core_console_success(result)
             payload = {
                 "drawing": str(drawing_path),
                 "action": request.action,

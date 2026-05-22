@@ -8,6 +8,10 @@ from autocad_mcp_server.utils.temp_workspace import TempWorkspaceManager
 
 
 class CoreConsoleManager:
+    SENTINEL_BEGIN = "MCP_RUN_BEGIN"
+    SENTINEL_END = "MCP_RUN_END"
+    SENTINEL_OK = "MCP_STATUS:OK"
+
     def __init__(
         self,
         adapter: CoreConsoleAdapter,
@@ -22,19 +26,38 @@ class CoreConsoleManager:
         self.timeout_seconds = timeout_seconds
         self.keep_failed_workspaces = keep_failed_workspaces
 
-    async def run_script(self, drawing_path: Path, script_contents: str, prefix: str) -> dict[str, str | int]:
-        async def operation() -> dict[str, str | int]:
+    def _wrap_script(self, script_contents: str) -> str:
+        return (
+            f'(princ "{self.SENTINEL_BEGIN}\\n")\n'
+            + script_contents.rstrip()
+            + "\n"
+            + f'(princ "{self.SENTINEL_OK}\\n")\n'
+            + f'(princ "{self.SENTINEL_END}\\n")\n(princ)\n'
+        )
+
+    def _validate_sentinel(self, stdout: str) -> bool:
+        return (
+            self.SENTINEL_BEGIN in stdout
+            and self.SENTINEL_OK in stdout
+            and self.SENTINEL_END in stdout
+        )
+
+    async def run_script(self, drawing_path: Path, script_contents: str, prefix: str) -> dict[str, str | int | bool]:
+        async def operation() -> dict[str, str | int | bool]:
             workspace = self.workspace_manager.create(prefix)
             script_path = workspace / "job.scr"
-            script_path.write_text(script_contents, encoding="utf-8")
+            wrapped = self._wrap_script(script_contents)
+            script_path.write_text(wrapped, encoding="utf-8")
             try:
                 result = self.adapter.run_script(drawing_path, script_path, self.timeout_seconds)
+                sentinel_ok = self._validate_sentinel(result.stdout)
                 self.workspace_manager.cleanup(workspace, keep=False)
                 return {
                     "stdout": result.stdout,
                     "stderr": result.stderr,
                     "returncode": result.returncode,
                     "workspace": str(workspace),
+                    "sentinel_ok": sentinel_ok,
                 }
             except Exception:
                 self.workspace_manager.cleanup(workspace, keep=self.keep_failed_workspaces)
