@@ -16,6 +16,7 @@ from autocad_mcp_server.services.interop_manager import InteropManager
 from autocad_mcp_server.services.layer_block_service import LayerBlockService
 from autocad_mcp_server.services.lisp_runner import LispRunner
 from autocad_mcp_server.services.metadata_extractor import MetadataExtractor
+from autocad_mcp_server.services.runtime_supervisor import RuntimeSupervisor
 from autocad_mcp_server.tools import register_tools
 from autocad_mcp_server.utils.discovery import discover_executable
 from autocad_mcp_server.utils.temp_workspace import TempWorkspaceManager
@@ -25,12 +26,19 @@ def build_server() -> FastMCP:
     settings = Settings()
     configure_logging(settings.log_level)
 
+    for path in [settings.profile_root, settings.state_dir, settings.audit_log_dir, settings.runtime_log_dir, settings.workspace_root]:
+        path.mkdir(parents=True, exist_ok=True)
+
+    supervisor = RuntimeSupervisor(settings.state_dir)
+    supervisor.bootstrap()
+
     sandbox = PathSandbox(settings.allowed_root_paths)
     lisp_policy = LispPolicy(
         max_chars=settings.max_lisp_chars,
         max_depth=settings.max_lisp_depth,
     )
     queue = ExecutionQueue()
+    supervisor.update_queue_depth(queue.depth)
     workspace_manager = TempWorkspaceManager(settings.workspace_root)
     core_console_adapter = CoreConsoleAdapter(
         discover_executable(settings.accoreconsole_path, "accoreconsole.exe")
@@ -58,7 +66,7 @@ def build_server() -> FastMCP:
     )
 
     mcp = FastMCP(settings.server_name)
-    register_tools(mcp, service)
+    register_tools(mcp, service, supervisor, queue)
     return mcp
 
 

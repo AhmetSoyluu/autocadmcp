@@ -8,7 +8,11 @@
       ],
       "env": {
         "AUTOCAD_MCP_ALLOWED_DWG_ROOTS": "C:\\CAD\\Projects;C:\\CAD\\Shared",
-        "AUTOCAD_MCP_WORKSPACE_ROOT": "C:\\CAD\\autocadmcp-workspaces",
+        "AUTOCAD_MCP_PROFILE_ROOT": "C:\\ProgramData\\autocadmcp",
+        "AUTOCAD_MCP_STATE_DIR": "C:\\ProgramData\\autocadmcp\\state",
+        "AUTOCAD_MCP_AUDIT_LOG_DIR": "C:\\ProgramData\\autocadmcp\\audit",
+        "AUTOCAD_MCP_RUNTIME_LOG_DIR": "C:\\ProgramData\\autocadmcp\\logs",
+        "AUTOCAD_MCP_WORKSPACE_ROOT": "C:\\ProgramData\\autocadmcp\\workspaces",
         "AUTOCAD_MCP_ACAD_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
         "AUTOCAD_MCP_ACCORECONSOLE_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\accoreconsole.exe",
         "AUTOCAD_MCP_COM_LAUNCH_IF_MISSING": "false",

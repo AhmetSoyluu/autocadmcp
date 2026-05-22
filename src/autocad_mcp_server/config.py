@@ -17,7 +17,11 @@ class Settings(BaseSettings):
     server_name: str = "autocadmcp"
     log_level: str = "INFO"
     allowed_dwg_roots: str = Field(default="")
-    workspace_root: Path = Path("C:/temp/autocadmcp-workspaces")
+    profile_root: Path = Path("C:/ProgramData/autocadmcp")
+    state_dir: Path = Path("C:/ProgramData/autocadmcp/state")
+    audit_log_dir: Path = Path("C:/ProgramData/autocadmcp/audit")
+    runtime_log_dir: Path = Path("C:/ProgramData/autocadmcp/logs")
+    workspace_root: Path = Path("C:/ProgramData/autocadmcp/workspaces")
     acad_path: Path | None = None
     accoreconsole_path: Path | None = None
     com_launch_if_missing: bool = False
@@ -31,12 +35,12 @@ class Settings(BaseSettings):
     keep_failed_workspaces: bool = True
     default_execution_mode: Literal["auto", "com", "core_console"] = "auto"
 
-    @field_validator("workspace_root", mode="before")
+    @field_validator("profile_root", "state_dir", "audit_log_dir", "runtime_log_dir", "workspace_root", mode="before")
     @classmethod
-    def validate_workspace_root(cls, value: str | Path) -> Path:
+    def validate_runtime_paths(cls, value: str | Path) -> Path:
         path = Path(value).expanduser()
         if not path.is_absolute():
-            raise ValueError("workspace_root must be an absolute path")
+            raise ValueError("Runtime paths must be absolute")
         return path
 
     @property

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 from autocad_mcp_server.adapters.core_console_adapter import CoreConsoleAdapter
@@ -44,15 +45,37 @@ class CoreConsoleManager:
 
     async def run_script(self, drawing_path: Path, script_contents: str, prefix: str) -> dict[str, str | int | bool]:
         async def operation() -> dict[str, str | int | bool]:
+            job_id = uuid.uuid4().hex
             workspace = self.workspace_manager.create(prefix)
             script_path = workspace / "job.scr"
             wrapped = self._wrap_script(script_contents)
             script_path.write_text(wrapped, encoding="utf-8")
+            self.workspace_manager.write_manifest(
+                workspace,
+                {
+                    "job_id": job_id,
+                    "drawing_path": str(drawing_path),
+                    "prefix": prefix,
+                    "status": "running",
+                },
+            )
             try:
                 result = self.adapter.run_script(drawing_path, script_path, self.timeout_seconds)
                 sentinel_ok = self._validate_sentinel(result.stdout)
+                self.workspace_manager.write_manifest(
+                    workspace,
+                    {
+                        "job_id": job_id,
+                        "drawing_path": str(drawing_path),
+                        "prefix": prefix,
+                        "status": "completed",
+                        "returncode": result.returncode,
+                        "sentinel_ok": sentinel_ok,
+                    },
+                )
                 self.workspace_manager.cleanup(workspace, keep=False)
                 return {
+                    "job_id": job_id,
                     "stdout": result.stdout,
                     "stderr": result.stderr,
                     "returncode": result.returncode,
@@ -60,6 +83,15 @@ class CoreConsoleManager:
                     "sentinel_ok": sentinel_ok,
                 }
             except Exception:
+                self.workspace_manager.write_manifest(
+                    workspace,
+                    {
+                        "job_id": job_id,
+                        "drawing_path": str(drawing_path),
+                        "prefix": prefix,
+                        "status": "failed",
+                    },
+                )
                 self.workspace_manager.cleanup(workspace, keep=self.keep_failed_workspaces)
                 raise
 

@@ -43,6 +43,8 @@ Copy the environment template and adjust paths:
 copy .env.example .env
 ```
 
+For a long-lived deployment, keep runtime data under stable directories such as `C:\ProgramData\autocadmcp`. The profile root, state files, audit logs, runtime logs, and workspaces should not point to ad-hoc temp folders in normal operation.
+
 ## Run the server
 
 Start the MCP server over stdio:
