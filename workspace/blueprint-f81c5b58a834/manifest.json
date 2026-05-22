@@ -1,0 +1,14 @@
+{
+  "project_name": "demo",
+  "discipline": "mixed",
+  "systems": [
+    "arch",
+    "elec",
+    "hvac"
+  ],
+  "artifacts": [
+    "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\workspace\\blueprint-f81c5b58a834\\generate_all.lsp",
+    "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\workspace\\blueprint-f81c5b58a834\\generate_all.scr"
+  ],
+  "drawing_standard": "IEC_60617"
+}

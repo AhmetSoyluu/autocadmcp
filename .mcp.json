@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "autocad-mcp-server": {
+      "type": "stdio",
+      "command": "c:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\venv\\Scripts\\python.exe",
+      "args": [
+        "c:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\server.py"
+      ],
+      "env": {}
+    }
+  }
+}

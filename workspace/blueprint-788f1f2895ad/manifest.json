@@ -1,0 +1,16 @@
+{
+  "project_name": "mcp_live_demo",
+  "discipline": "mixed",
+  "systems": [
+    "architecture",
+    "structure",
+    "mechanical",
+    "electrical",
+    "weak_current"
+  ],
+  "artifacts": [
+    "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\workspace\\blueprint-788f1f2895ad\\mcp_live_demo_blueprint.lsp",
+    "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\workspace\\blueprint-788f1f2895ad\\mcp_live_demo_blueprint.scr"
+  ],
+  "drawing_standard": "IEC_60617"
+}

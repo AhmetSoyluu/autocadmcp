@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__autocad-mcp-server__get_drawing_info",
+      "mcp__autocad-mcp-server__draw_line",
+      "mcp__autocad-mcp-server__draw_circle",
+      "mcp__autocad-mcp-server__draw_polyline"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "autocad-mcp-server"
+  ],
+  "mcpServers": {
+    "autocadmcp": {
+      "command": "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "autocad_mcp_server.main"
+      ],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\src",
+        "AUTOCAD_MCP_ALLOWED_DWG_ROOTS": "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\endüstriyel_otomasyon dosyaları",
+        "AUTOCAD_MCP_PROFILE_ROOT": "C:\\ProgramData\\autocadmcp",
+        "AUTOCAD_MCP_STATE_DIR": "C:\\ProgramData\\autocadmcp\\state",
+        "AUTOCAD_MCP_AUDIT_LOG_DIR": "C:\\ProgramData\\autocadmcp\\audit",
+        "AUTOCAD_MCP_RUNTIME_LOG_DIR": "C:\\ProgramData\\autocadmcp\\logs",
+        "AUTOCAD_MCP_WORKSPACE_ROOT": "C:\\ProgramData\\autocadmcp\\workspaces",
+        "AUTOCAD_MCP_ACAD_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2027\\acad.exe",
+        "AUTOCAD_MCP_ACCORECONSOLE_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2027\\accoreconsole.exe",
+        "AUTOCAD_MCP_COM_LAUNCH_IF_MISSING": "false",
+        "AUTOCAD_MCP_LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
