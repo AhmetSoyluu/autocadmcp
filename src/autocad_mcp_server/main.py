@@ -9,6 +9,7 @@ from autocad_mcp_server.logging import configure_logging
 from autocad_mcp_server.security.lisp_policy import LispPolicy
 from autocad_mcp_server.security.path_sandbox import PathSandbox
 from autocad_mcp_server.services.core_console_manager import CoreConsoleManager
+from autocad_mcp_server.services.drafting_script_service import DraftingScriptService
 from autocad_mcp_server.services.dwg_service import DWGService
 from autocad_mcp_server.services.execution_queue import ExecutionQueue
 from autocad_mcp_server.services.geometry_query_service import GeometryQueryService
@@ -60,6 +61,7 @@ def build_server() -> FastMCP:
         supervisor=supervisor,
         audit_file=audit_file,
     )
+    lisp_runner = LispRunner(lisp_policy)
     service = DWGService(
         sandbox=sandbox,
         core_console_manager=core_console_manager,
@@ -67,11 +69,12 @@ def build_server() -> FastMCP:
         metadata_extractor=MetadataExtractor(),
         geometry_query_service=GeometryQueryService(),
         layer_block_service=LayerBlockService(),
-        lisp_runner=LispRunner(lisp_policy),
+        lisp_runner=lisp_runner,
     )
+    drafting_service = DraftingScriptService(workspace_manager, lisp_policy)
 
     mcp = FastMCP(settings.server_name)
-    register_tools(mcp, service, supervisor, queue)
+    register_tools(mcp, service, supervisor, queue, drafting_service)
     return mcp
 
 

@@ -42,3 +42,26 @@ class ManageLayersAndBlocksRequest(BaseModel):
     ]
     parameters: dict[str, Any] = Field(default_factory=dict)
     execution_mode: Literal["auto", "com", "core_console"] = "auto"
+
+
+class GenerateElectricalBlueprintRequest(BaseModel):
+    project_name: str = Field(min_length=1)
+    discipline: Literal[
+        "architecture",
+        "structure",
+        "mechanical",
+        "electrical",
+        "weak_current",
+        "mixed",
+    ] = "mixed"
+    systems: list[str] = Field(default_factory=list)
+    base_point: tuple[float, float] = (0.0, 0.0)
+    sheet_width: float = 841.0
+    sheet_height: float = 594.0
+    outer_wall_thickness: float = 20.0
+    inner_wall_thickness: float = 10.0
+    output_name: str = Field(min_length=1, pattern=r"^[A-Za-z0-9_.-]+$")
+    title_block_title: str = "UNIVERSAL DRAFT"
+    legend_offset_x: float = 5000.0
+    legend_offset_y: float = 0.0
+    drawing_standard: str = "IEC_60617"
