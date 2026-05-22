@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "autocadmcp": {
+      "command": "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "autocad_mcp_server.main"
+      ],
+      "env": {
+        "AUTOCAD_MCP_ALLOWED_DWG_ROOTS": "C:\\CAD\\Projects;C:\\CAD\\Shared",
+        "AUTOCAD_MCP_WORKSPACE_ROOT": "C:\\CAD\\autocadmcp-workspaces",
+        "AUTOCAD_MCP_ACAD_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
+        "AUTOCAD_MCP_ACCORECONSOLE_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\accoreconsole.exe",
+        "AUTOCAD_MCP_COM_LAUNCH_IF_MISSING": "false",
+        "AUTOCAD_MCP_LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}

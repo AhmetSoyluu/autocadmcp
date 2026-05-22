@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autocad-mcp-server"
+version = "0.1.0"
+description = "Security-first AutoCAD MCP server for COM and accoreconsole automation"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Ahmet Soylu" }]
+dependencies = [
+  "fastmcp>=2.0.0",
+  "pydantic>=2.7.0",
+  "pydantic-settings>=2.2.1",
+  "python-dotenv>=1.0.1",
+  "pywin32>=306; platform_system == 'Windows'",
+  "psutil>=5.9.8",
+  "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "pytest-asyncio>=0.23.7",
+  "pytest-cov>=5.0.0",
+  "ruff>=0.4.4",
+  "mypy>=1.10.0",
+]
+
+[project.scripts]
+autocad-mcp-server = "autocad_mcp_server.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: requires local AutoCAD installation on Windows",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+strict_equality = true
