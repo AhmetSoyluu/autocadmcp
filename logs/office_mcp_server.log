@@ -142,3 +142,115 @@
 2026-05-22 22:10:51 | INFO     | __main__:main:107 - PowerPoint 工具已注册
 2026-05-22 22:10:51 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
 2026-05-22 22:10:51 | INFO     | __main__:main:109 - ================================================================================
+2026-05-22 22:14:56 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-22 22:14:56 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:14:56 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:14:57 | INFO     | __main__:main:94 - ================================================================================
+2026-05-22 22:14:57 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-22 22:14:57 | INFO     | __main__:main:96 - 启动时间: 2026-05-22 22:14:57
+2026-05-22 22:14:57 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-22 22:14:57 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-22 22:14:57 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-22 22:14:57 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-22 22:14:57 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-22 22:14:57 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-22 22:14:57 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-22 22:14:57 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-22 22:14:57 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-22 22:14:57 | INFO     | __main__:main:109 - ================================================================================
+2026-05-22 22:19:33 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-22 22:19:33 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:19:33 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:19:33 | INFO     | __main__:main:94 - ================================================================================
+2026-05-22 22:19:33 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-22 22:19:33 | INFO     | __main__:main:96 - 启动时间: 2026-05-22 22:19:33
+2026-05-22 22:19:33 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-22 22:19:33 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-22 22:19:33 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-22 22:19:33 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-22 22:19:33 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-22 22:19:33 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-22 22:19:33 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-22 22:19:33 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-22 22:19:33 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-22 22:19:33 | INFO     | __main__:main:109 - ================================================================================
+2026-05-22 22:21:48 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-22 22:21:48 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:21:49 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:21:49 | INFO     | __main__:main:94 - ================================================================================
+2026-05-22 22:21:49 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-22 22:21:49 | INFO     | __main__:main:96 - 启动时间: 2026-05-22 22:21:49
+2026-05-22 22:21:49 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-22 22:21:49 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-22 22:21:49 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-22 22:21:49 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-22 22:21:49 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-22 22:21:49 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-22 22:21:49 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-22 22:21:49 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-22 22:21:49 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-22 22:21:49 | INFO     | __main__:main:109 - ================================================================================
+2026-05-22 22:48:05 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-22 22:48:05 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:48:05 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:48:05 | INFO     | __main__:main:94 - ================================================================================
+2026-05-22 22:48:05 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-22 22:48:05 | INFO     | __main__:main:96 - 启动时间: 2026-05-22 22:48:05
+2026-05-22 22:48:05 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-22 22:48:05 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-22 22:48:05 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-22 22:48:05 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-22 22:48:05 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-22 22:48:05 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-22 22:48:05 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-22 22:48:05 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-22 22:48:05 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-22 22:48:05 | INFO     | __main__:main:109 - ================================================================================
+2026-05-22 22:55:21 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-22 22:55:21 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:55:21 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 22:55:21 | INFO     | __main__:main:94 - ================================================================================
+2026-05-22 22:55:21 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-22 22:55:21 | INFO     | __main__:main:96 - 启动时间: 2026-05-22 22:55:21
+2026-05-22 22:55:21 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-22 22:55:21 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-22 22:55:21 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-22 22:55:21 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-22 22:55:21 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-22 22:55:21 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-22 22:55:21 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-22 22:55:21 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-22 22:55:21 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-22 22:55:21 | INFO     | __main__:main:109 - ================================================================================
+2026-05-22 23:25:32 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-22 23:25:32 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 23:25:33 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-22 23:25:33 | INFO     | __main__:main:94 - ================================================================================
+2026-05-22 23:25:33 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-22 23:25:33 | INFO     | __main__:main:96 - 启动时间: 2026-05-22 23:25:33
+2026-05-22 23:25:33 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-22 23:25:33 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-22 23:25:33 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-22 23:25:33 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-22 23:25:33 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-22 23:25:33 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-22 23:25:33 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-22 23:25:33 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-22 23:25:33 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-22 23:25:33 | INFO     | __main__:main:109 - ================================================================================
+2026-05-23 15:02:53 | INFO     | office_mcp_server.handlers.word_handler:__init__:51 - Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）
+2026-05-23 15:02:53 | INFO     | office_mcp_server.handlers.excel_handler:__init__:56 - Excel 处理器初始化完成 - 已加载所有功能模块
+2026-05-23 15:02:53 | INFO     | office_mcp_server.handlers.ppt_handler:__init__:35 - PowerPoint 处理器初始化完成 - 已加载所有功能模块
+2026-05-23 15:02:53 | INFO     | __main__:main:94 - ================================================================================
+2026-05-23 15:02:53 | INFO     | __main__:main:95 - 启动 office-mcp-server v1.0.0
+2026-05-23 15:02:53 | INFO     | __main__:main:96 - 启动时间: 2026-05-23 15:02:53
+2026-05-23 15:02:53 | INFO     | __main__:main:97 - 日志级别: INFO
+2026-05-23 15:02:53 | INFO     | __main__:main:100 - 日志文件: logs\office_mcp_server.log
+2026-05-23 15:02:53 | INFO     | __main__:main:101 - 错误日志: logs\error.log
+2026-05-23 15:02:53 | INFO     | __main__:main:102 - 日志轮转: 10 MB
+2026-05-23 15:02:53 | INFO     | __main__:main:103 - 日志保留: 7 days
+2026-05-23 15:02:53 | INFO     | __main__:main:105 - Word 工具已注册
+2026-05-23 15:02:53 | INFO     | __main__:main:106 - Excel 工具已注册
+2026-05-23 15:02:53 | INFO     | __main__:main:107 - PowerPoint 工具已注册
+2026-05-23 15:02:53 | INFO     | __main__:main:108 - 所有 Office MCP 工具注册完成
+2026-05-23 15:02:53 | INFO     | __main__:main:109 - ================================================================================

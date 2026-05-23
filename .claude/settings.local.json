@@ -4,7 +4,10 @@
       "mcp__autocad-mcp-server__get_drawing_info",
       "mcp__autocad-mcp-server__draw_line",
       "mcp__autocad-mcp-server__draw_circle",
-      "mcp__autocad-mcp-server__draw_polyline"
+      "mcp__autocad-mcp-server__draw_polyline",
+      "mcp__autocad-mcp-server__draw_rectangle",
+      "mcp__autocad-mcp-server__add_text",
+      "mcp__autocad-mcp-server__zoom_extents"
     ]
   },
   "enabledMcpjsonServers": [
