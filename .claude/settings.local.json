@@ -7,7 +7,11 @@
       "mcp__autocad-mcp-server__draw_polyline",
       "mcp__autocad-mcp-server__draw_rectangle",
       "mcp__autocad-mcp-server__add_text",
-      "mcp__autocad-mcp-server__zoom_extents"
+      "mcp__autocad-mcp-server__zoom_extents",
+      "Bash(pytest)",
+      "Bash(pytest tests/unit/test_cad_command_service.py tests/unit/test_dwg_service_mode_selection.py)",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
     ]
   },
   "enabledMcpjsonServers": [

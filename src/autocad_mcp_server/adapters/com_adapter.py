@@ -39,6 +39,13 @@ class ComAdapter:
         app.Visible = visible
         return app
 
+    def get_open_document(self, app: Any, drawing_path: Path) -> Any | None:
+        normalized_target = str(drawing_path).lower()
+        for document in app.Documents:
+            if str(document.FullName).lower() == normalized_target:
+                return document
+        return None
+
     def open_document(self, app: Any, drawing_path: Path) -> Any:
         return app.Documents.Open(str(drawing_path))
 

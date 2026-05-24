@@ -74,11 +74,24 @@ class AutoCadCommandRequest(BaseModel):
         "draw_circle",
         "draw_rectangle",
         "draw_polyline",
+        "draw_ellipse",
+        "draw_arc",
+        "draw_spline",
         "add_text",
         "add_hatch",
         "add_dimension",
         "insert_block",
         "create_layer",
+        "erase_object",
+        "move_object",
+        "rotate_object",
+        "scale_object",
+        "copy_object",
+        "get_distance",
+        "get_angle",
+        "calculate_area",
+        "purge_drawing",
+        "audit_drawing",
         "zoom_extents",
         "send_command",
     ]
@@ -90,4 +103,16 @@ class AutoCadCommandRequest(BaseModel):
     def _validate_parameters(cls, value: dict[str, Any]) -> dict[str, Any]:
         if len(value) > 50:
             raise ValueError("Too many parameters supplied")
+        return value
+
+    @field_validator("parameters")
+    @classmethod
+    def _validate_numeric_parameters(cls, value: dict[str, Any]) -> dict[str, Any]:
+        for key in ("radius", "other_axis_radius", "scale_factor"):
+            numeric = value.get(key)
+            if numeric is not None and float(numeric) <= 0:
+                raise ValueError(f"{key} must be greater than zero")
+        points = value.get("points")
+        if points is not None and len(points) == 0:
+            raise ValueError("points must not be empty")
         return value

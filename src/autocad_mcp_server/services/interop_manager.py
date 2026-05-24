@@ -126,3 +126,42 @@ class InteropManager:
                     except Exception:
                         pass
                 self.adapter.uninitialize_com()
+
+    def run_cad_command(self, drawing_path: Path, command: str, operation: str) -> dict[str, Any]:
+        with self._lock:
+            try:
+                self.adapter.initialize_com()
+                app = self._connect()
+                self.supervisor.mark_com_health(True)
+                document = self.adapter.get_open_document(app, drawing_path)
+                if document is None:
+                    raise AutoCADUnavailable("Target drawing is not open in the active AutoCAD session")
+                self.adapter.send_command(document, command)
+                self.supervisor.record_job_success()
+                write_audit_record(
+                    AuditRecord(
+                        tool_name="execute_cad_command",
+                        dwg_path=str(drawing_path),
+                        execution_mode="com",
+                        outcome="success",
+                        message=f"COM CAD command submitted: {operation}",
+                        operation_id="com-cad-command",
+                        electrical_context={"active_project_wdp": str(drawing_path.with_suffix('.wdp')), "wd_m_initialized": True},
+                    ),
+                    self.audit_file,
+                )
+                return {
+                    "status": "submitted",
+                    "drawing": str(document.FullName),
+                    "operation": operation,
+                }
+            except AutoCADUnavailable as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": operation})
+                raise
+            except Exception as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": operation})
+                raise ToolExecutionFailure(f"COM CAD command execution failed: {exc}") from exc
+            finally:
+                self.adapter.uninitialize_com()

@@ -25,11 +25,25 @@ class FakeCoreConsoleManager:
 
 
 class FakeInteropManager:
+    com_available = True
+    drawing_open = True
+
     def run_lisp(self, drawing_path: Path, lisp_source: str) -> dict[str, str]:
         return {"status": "submitted", "drawing": str(drawing_path)}
 
     def manage_layers_and_blocks(self, drawing_path: Path, action: str, parameters: dict) -> dict:
         return {"status": "submitted", "drawing": str(drawing_path), "action": action}
+
+    def run_cad_command(self, drawing_path: Path, command: str, operation: str) -> dict[str, str]:
+        if not self.com_available:
+            from autocad_mcp_server.utils.errors import AutoCADUnavailable
+
+            raise AutoCADUnavailable("No running AutoCAD COM session found")
+        if not self.drawing_open:
+            from autocad_mcp_server.utils.errors import AutoCADUnavailable
+
+            raise AutoCADUnavailable("Target drawing is not open in the active AutoCAD session")
+        return {"status": "submitted", "drawing": str(drawing_path), "operation": operation}
 
 
 def test_execute_autolisp_uses_com_for_live_session(tmp_path: Path) -> None:
@@ -57,7 +71,38 @@ def test_execute_autolisp_uses_com_for_live_session(tmp_path: Path) -> None:
     assert result.execution_mode == "com"
 
 
-def test_execute_cad_command_uses_core_console(tmp_path: Path) -> None:
+def test_execute_cad_command_uses_com_when_requested(tmp_path: Path) -> None:
+    root = tmp_path / "allowed"
+    root.mkdir()
+    drawing = root / "sample.dwg"
+    drawing.write_text("x", encoding="utf-8")
+    interop = FakeInteropManager()
+    service = DWGService(
+        sandbox=PathSandbox([root]),
+        core_console_manager=FakeCoreConsoleManager(),
+        interop_manager=interop,
+        metadata_extractor=MetadataExtractor(),
+        geometry_query_service=GeometryQueryService(),
+        layer_block_service=LayerBlockService(),
+        lisp_runner=LispRunner(LispPolicy(max_chars=1000, max_depth=8)),
+        cad_command_service=CadCommandService(),
+    )
+
+    result: JobResult = asyncio.run(
+        service.execute_cad_command(
+            AutoCadCommandRequest(
+                dwg_path=str(drawing),
+                operation="zoom_extents",
+                parameters={},
+                execution_mode="com",
+            )
+        )
+    )
+
+    assert result.execution_mode == "com"
+
+
+def test_execute_cad_command_uses_core_console_when_requested(tmp_path: Path) -> None:
     root = tmp_path / "allowed"
     root.mkdir()
     drawing = root / "sample.dwg"
@@ -79,9 +124,44 @@ def test_execute_cad_command_uses_core_console(tmp_path: Path) -> None:
                 dwg_path=str(drawing),
                 operation="zoom_extents",
                 parameters={},
-                execution_mode="auto",
+                execution_mode="core_console",
             )
         )
     )
 
     assert result.execution_mode == "core_console"
+
+
+def test_execute_cad_command_auto_raises_when_drawing_not_open(tmp_path: Path) -> None:
+    root = tmp_path / "allowed"
+    root.mkdir()
+    drawing = root / "sample.dwg"
+    drawing.write_text("x", encoding="utf-8")
+    interop = FakeInteropManager()
+    interop.drawing_open = False
+    service = DWGService(
+        sandbox=PathSandbox([root]),
+        core_console_manager=FakeCoreConsoleManager(),
+        interop_manager=interop,
+        metadata_extractor=MetadataExtractor(),
+        geometry_query_service=GeometryQueryService(),
+        layer_block_service=LayerBlockService(),
+        lisp_runner=LispRunner(LispPolicy(max_chars=1000, max_depth=8)),
+        cad_command_service=CadCommandService(),
+    )
+
+    try:
+        asyncio.run(
+            service.execute_cad_command(
+                AutoCadCommandRequest(
+                    dwg_path=str(drawing),
+                    operation="zoom_extents",
+                    parameters={},
+                    execution_mode="auto",
+                )
+            )
+        )
+    except Exception as exc:
+        assert "Target drawing is not open" in str(exc)
+    else:
+        raise AssertionError("Expected execute_cad_command to raise when drawing is not open")

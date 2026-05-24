@@ -49,6 +49,17 @@ class DWGService:
         if not bool(result.get("sentinel_ok")):
             raise ToolExecutionFailure("Core Console output sentinel validation failed")
 
+    @staticmethod
+    def _extract_measurement_payload(stdout: str) -> dict[str, Any]:
+        payload: dict[str, Any] = {}
+        for line in stdout.splitlines():
+            if not line.startswith("MCP_RESULT:"):
+                continue
+            key, _, value = line.removeprefix("MCP_RESULT:").partition("=")
+            if key and value:
+                payload[key.lower()] = value.strip()
+        return payload
+
     async def read_dwg_metadata(self, request: ReadDwgMetadataRequest) -> JobResult:
         drawing_path = self.sandbox.validate(request.dwg_path)
         script = self.metadata_extractor.build_script(
@@ -160,16 +171,31 @@ class DWGService:
         lisp = self.cad_command_service.build_lisp(request.operation, request.parameters)
         validated = self.lisp_runner.validate(lisp)
 
+        if request.execution_mode == "com":
+            payload = self.interop_manager.run_cad_command(drawing_path, validated, request.operation)
+            return JobResult(success=True, execution_mode="com", payload=payload)
+
+        if request.execution_mode == "auto":
+            try:
+                payload = self.interop_manager.run_cad_command(drawing_path, validated, request.operation)
+                return JobResult(success=True, execution_mode="com", payload=payload)
+            except AutoCADUnavailable as exc:
+                raise ToolExecutionFailure(str(exc)) from exc
+
+        core_script = validated + "\n(command \"_.QSAVE\")\n(princ)\n"
         result = await self.core_console_manager.run_script(
             drawing_path,
-            validated + "\n(princ)\n",
+            core_script,
             prefix=f"cad-{request.operation}",
         )
         self._ensure_core_console_success(result)
+        stdout = str(result["stdout"])
         payload = {
             "drawing": str(drawing_path),
             "operation": request.operation,
-            "stdout": result["stdout"],
+            "stdout": stdout,
             "stderr": result["stderr"],
         }
+        measurement_payload = self._extract_measurement_payload(stdout)
+        payload.update(measurement_payload)
         return JobResult(success=True, execution_mode="core_console", payload=payload)
