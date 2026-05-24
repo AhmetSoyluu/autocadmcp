@@ -1,94 +1,114 @@
 # AutoCAD MCP Server
 
-AutoCAD MCP Server is a Windows-focused, security-first MCP server for interacting with DWG files through either a live AutoCAD desktop session (COM Interop) or background execution with `accoreconsole.exe`.
+AutoCAD MCP Server, AutoCAD ile MCP (Model Context Protocol) üzerinden etkileşim kurmanızı sağlayan bir Windows odaklı sunucudur. DWG dosyalarıyla canlı AutoCAD oturumu (COM Interop) veya arka planda `accoreconsole.exe` ile çalışabilir.
 
-Python is used instead of TypeScript because Windows COM automation is more mature and stable through `pywin32`, and the same runtime can also manage `accoreconsole.exe` processes, timeouts, temp workspaces, and path sandboxing with less integration overhead.
+Python kullanılmasının nedeni, Windows COM otomasyonunun `pywin32` ile daha olgun ve kararlı olması, aynı runtime'ın `accoreconsole.exe` süreçlerini, zaman aşımlarını, geçici çalışma alanlarını ve yol kısıtlamalarını daha az entegrasyon yüküyle yönetebilmesidir.
 
-## Features
+## Özellikler
 
-The server exposes four MCP tools:
+Sunucu dört MCP aracı sunar:
 
-- `read_dwg_metadata`: returns layers, block references, text/mtext content, and drawing summary as JSON.
-- `execute_autolisp`: runs policy-checked AutoLISP in either a live session or a background console run.
-- `query_geometry`: returns entity coordinates, bounding boxes, lengths, and areas.
-- `manage_layers_and_blocks`: creates and changes layers, and inserts blocks with validated parameters.
+- **`read_dwg_metadata`** — Katmanlar, blok referansları, metin/mtext içeriği ve çizim özetini JSON olarak döndürür.
+- **`execute_autolisp`** — Politika denetiminden geçmiş AutoLISP kodunu canlı oturumda veya arka plan konsolunda çalıştırır.
+- **`query_geometry`** — Varlık koordinatlarını, sınırlayıcı kutuları, uzunlukları ve alanları döndürür.
+- **`manage_layers_and_blocks`** — Katman oluşturur/değiştirir ve doğrulanmış parametrelerle blok ekler.
 
-## Security model
+## Güvenlik Modeli
 
-This server is intentionally restrictive.
+Bu sunucu kasıtlı olarak kısıtlayıcıdır:
 
-Only DWG files under configured allowed roots can be opened. All incoming paths are normalized and validated against path traversal and sandbox escape attempts. Core Console jobs run through a single queue to prevent process collisions. AutoLISP execution is blocked unless the request passes the built-in policy checks.
+- Yalnızca yapılandırılmış izinli kök dizinler altındaki DWG dosyaları açılabilir.
+- Tüm gelen yollar, yol traversali ve sandbox kaçış girişimlerine karşı normalize edilir ve doğrulanır.
+- Core Console işleri, süreç çakışmalarını önlemek için tek bir kuyruk üzerinden çalışır.
+- AutoLISP yürütmesi, yerleşik politika denetimlerinden geçmezse engellenir.
 
-## Requirements
+## Gereksinimler
 
-- Windows 10 or 11
+- Windows 10 veya 11
 - Python 3.11+
-- AutoCAD installed locally
-- `acad.exe` for live COM operations
-- `accoreconsole.exe` for background/offline operations
+- AutoCAD kurulu olmalı (`acad.exe` ve `accoreconsole.exe`)
+- Git
 
-## Setup
-
-Create a virtual environment and install dependencies:
+## Hızlı Kurulum
 
 ```bash
+# 1. Projeyi klonla
+git clone https://github.com/AhmetSoyluu/autocadmcp.git
+cd autocadmcp
+
+# 2. Sanal ortam oluştur
 python -m venv .venv
 .venv\Scripts\activate
+
+# 3. Bağımlılıkları kur
 pip install -e .[dev]
-```
 
-Copy the environment template and adjust paths:
-
-```bash
+# 4. Ortam değişkenlerini ayarla
 copy .env.example .env
-```
+# .env dosyasını düzenleyerek AutoCAD yollarını kendi sistemine göre ayarla
 
-For a long-lived deployment, keep runtime data under stable directories such as `C:\ProgramData\autocadmcp`. The profile root, state files, audit logs, runtime logs, and workspaces should not point to ad-hoc temp folders in normal operation.
-
-## Run the server
-
-Start the MCP server over stdio:
-
-```bash
+# 5. Sunucuyu çalıştır
 python -m autocad_mcp_server.main
 ```
 
-Or use the installed entry point:
+## Claude Desktop ile Kullanım
 
-```bash
-autocad-mcp-server
+### Yöntem 1: Proje `.mcp.json` (Önerilen)
+
+Proje kökünde `.mcp.json` oluşturun (şablon için `docs/mcp.example.json` dosyasına bakın):
+
+```json
+{
+  "mcpServers": {
+    "autocad-mcp-server": {
+      "type": "stdio",
+      "command": "C:\\path\\to\\your\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "autocad_mcp_server.main"],
+      "env": {
+        "PYTHONPATH": "C:\\path\\to\\your\\project\\src",
+        "AUTOCAD_MCP_ALLOWED_DWG_ROOTS": "C:\\CAD\\Projects",
+        "AUTOCAD_MCP_ACAD_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
+        "AUTOCAD_MCP_ACCORECONSOLE_PATH": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\accoreconsole.exe"
+      }
+    }
+  }
+}
 ```
 
-## Tests
+### Yöntem 2: Claude Desktop Global Ayarları
 
-Run all unit tests:
+`%APPDATA%\Claude\claude_desktop_config.json` dosyasını düzenleyin:
+
+```json
+{
+  "mcpServers": {
+    "autocad-mcp-server": {
+      "command": "C:\\path\\to\\your\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "autocad_mcp_server.main"]
+    }
+  }
+}
+```
+
+Detaylı şablon: `docs/claude_desktop_config.example.json`
+
+## Testler
 
 ```bash
+# Tüm testler
 pytest
-```
 
-Run one test file:
+# Sadece birim testleri
+pytest tests/unit/
 
-```bash
-pytest tests/unit/test_path_sandbox.py
-```
-
-Run one test by name:
-
-```bash
-pytest tests/unit/test_lisp_policy.py -k test_rejects_shell_primitives
-```
-
-Run integration tests only on a Windows machine with AutoCAD installed:
-
-```bash
+# Entegrasyon testleri (AutoCAD gerekli)
 pytest -m integration
 ```
 
-## Claude Desktop configuration
+## Daha Fazla Bilgi
 
-Use `docs/claude_desktop_config.example.json` as a template. The config should point to Python and set environment variables instead of hardcoding sensitive or machine-specific values into the repository.
+Detaylı kurulum ve çalıştırma rehberi için: [PROJE_CALISTIRMA_REHBERI.md](PROJE_CALISTIRMA_REHBERI.md)
 
-## Architecture
+## Mimari
 
-The server keeps the tool layer thin. MCP tools validate structured requests, then delegate into `DWGService`, which decides whether to use COM or Core Console. Path validation is centralized in `security/path_sandbox.py`. AutoLISP is always checked by `security/lisp_policy.py`. Core Console execution is serialized through `services/execution_queue.py` and `services/core_console_manager.py`. Live AutoCAD access is isolated in `services/interop_manager.py` and `adapters/com_adapter.py`.
+Sunucu, tool katmanını ince tutar. MCP araçları yapılandırılmış istekleri doğrular, ardından `DWGService`'e devreder. `DWGService`, COM veya Core Console kullanımına karar verir. Yol doğrulama `security/path_sandbox.py`'de, AutoLISP denetimi `security/lisp_policy.py`'de merkezileştirilmiştir. Core Console yürütmesi `services/execution_queue.py` ve `services/core_console_manager.py` üzerinden serileştirilir. Canlı AutoCAD erişimi `services/interop_manager.py` ve `adapters/com_adapter.py`'de izole edilmiştir.

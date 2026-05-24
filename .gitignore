@@ -41,6 +41,12 @@ wheels/
 .tmp-e2e/
 .claude/
 
+# Auto-generated workspace files
+workspace/blueprint-*/
+
+# Machine-specific config (contains local paths)
+.mcp.json
+
 # OS
 .DS_Store
 Thumbs.db
