@@ -11,7 +11,11 @@
       "Bash(pytest)",
       "Bash(pytest tests/unit/test_cad_command_service.py tests/unit/test_dwg_service_mode_selection.py)",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "mcp__autocad-mcp-server__draw_ellipse",
+      "mcp__autocad-mcp-server__draw_arc",
+      "mcp__autocad-mcp-server__create_layer",
+      "mcp__autocad-mcp-server__draw_spline"
     ]
   },
   "enabledMcpjsonServers": [
