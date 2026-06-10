@@ -37,9 +37,32 @@ class InteropManager:
         except Exception as exc:
             raise AutoCADUnavailable(f"Unable to connect to AutoCAD COM session: {exc}") from exc
 
+    def _get_or_open_document(self, app: Any, drawing_path: Path) -> tuple[Any, bool]:
+        """Get already-open document or open it. Returns (document, opened_by_us)."""
+        document = self.adapter.get_open_document(app, drawing_path)
+        if document is not None:
+            return document, False
+        document = self.adapter.open_document(app, drawing_path)
+        return document, True
+
+    def _save_and_close_if_needed(self, document: Any, opened_by_us: bool) -> None:
+        """Save document and close it only if we opened it."""
+        if not opened_by_us:
+            return
+        try:
+            # Save first to prevent "Save changes?" dialog
+            document.Save()
+        except Exception:
+            pass
+        try:
+            document.Close(save_changes=True)
+        except Exception:
+            pass
+
     def run_lisp(self, drawing_path: Path, lisp_source: str) -> dict[str, str]:
         with self._lock:
             document = None
+            opened_by_us = False
             try:
                 self.adapter.initialize_com()
                 app = self._connect()
@@ -48,7 +71,7 @@ class InteropManager:
                     active_project_wdp=str(drawing_path.with_suffix('.wdp')),
                     wd_m_initialized=True,
                 )
-                document = self.adapter.open_document(app, drawing_path)
+                document, opened_by_us = self._get_or_open_document(app, drawing_path)
                 self.adapter.send_command(document, lisp_source)
                 self.supervisor.record_job_success()
                 write_audit_record(
@@ -73,16 +96,13 @@ class InteropManager:
                 self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": "execute_autolisp"})
                 raise ToolExecutionFailure(f"COM AutoLISP execution failed: {exc}") from exc
             finally:
-                if document is not None:
-                    try:
-                        self.adapter.close_document(document, save_changes=False)
-                    except Exception:
-                        pass
+                self._save_and_close_if_needed(document, opened_by_us)
                 self.adapter.uninitialize_com()
 
     def manage_layers_and_blocks(self, drawing_path: Path, action: str, parameters: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
             document = None
+            opened_by_us = False
             try:
                 self.adapter.initialize_com()
                 app = self._connect()
@@ -91,7 +111,7 @@ class InteropManager:
                     active_project_wdp=str(drawing_path.with_suffix('.wdp')),
                     wd_m_initialized=True,
                 )
-                document = self.adapter.open_document(app, drawing_path)
+                document, opened_by_us = self._get_or_open_document(app, drawing_path)
                 self.supervisor.record_job_success()
                 write_audit_record(
                     AuditRecord(
@@ -120,22 +140,116 @@ class InteropManager:
                 self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": action})
                 raise ToolExecutionFailure(f"COM layer/block operation failed: {exc}") from exc
             finally:
-                if document is not None:
-                    try:
-                        self.adapter.close_document(document, save_changes=False)
-                    except Exception:
-                        pass
+                self._save_and_close_if_needed(document, opened_by_us)
                 self.adapter.uninitialize_com()
 
-    def run_cad_command(self, drawing_path: Path, command: str, operation: str) -> dict[str, Any]:
+    def run_file_command(self, lisp_source: str, action: str, dwg_path: str = "", template_path: str = "",
+                         save_format: str = "dwg", save_changes: bool = True) -> dict[str, Any]:
+        """Execute file management commands (create, open, save, close, etc.)
+        These operations may not need a pre-existing document."""
         with self._lock:
             try:
                 self.adapter.initialize_com()
                 app = self._connect()
                 self.supervisor.mark_com_health(True)
-                document = self.adapter.get_open_document(app, drawing_path)
-                if document is None:
-                    raise AutoCADUnavailable("Target drawing is not open in the active AutoCAD session")
+
+                if action == "create_new":
+                    if template_path:
+                        app.Documents.Add(template_path)
+                    else:
+                        app.Documents.Add()
+                    doc = app.ActiveDocument
+                    if dwg_path:
+                        try:
+                            doc.SaveAs(dwg_path)
+                        except Exception:
+                            pass
+                    return {"status": "created", "drawing": str(doc.FullName), "action": action}
+
+                if action == "open":
+                    doc = app.Documents.Open(dwg_path)
+                    return {"status": "opened", "drawing": str(doc.FullName), "action": action}
+
+                if action == "save":
+                    if dwg_path:
+                        for d in app.Documents:
+                            if str(d.FullName).lower() == dwg_path.lower():
+                                d.Save()
+                                return {"status": "saved", "drawing": dwg_path, "action": action}
+                        raise ToolExecutionFailure(f"Document not found: {dwg_path}")
+                    doc = app.ActiveDocument
+                    doc.Save()
+                    return {"status": "saved", "drawing": str(doc.FullName), "action": action}
+
+                if action == "save_as":
+                    doc = app.ActiveDocument
+                    doc.SaveAs(dwg_path)
+                    return {"status": "saved_as", "drawing": dwg_path, "action": action}
+
+                if action == "close":
+                    save = save_changes
+                    if dwg_path:
+                        for d in app.Documents:
+                            if str(d.FullName).lower() == dwg_path.lower():
+                                d.Close(save)
+                                return {"status": "closed", "drawing": dwg_path, "action": action}
+                        raise ToolExecutionFailure(f"Document not found: {dwg_path}")
+                    doc = app.ActiveDocument
+                    name = str(doc.FullName)
+                    doc.Close(save)
+                    return {"status": "closed", "drawing": name, "action": action}
+
+                if action == "list_open":
+                    docs = []
+                    for d in app.Documents:
+                        docs.append(str(d.FullName))
+                    return {"status": "listed", "drawings": docs, "action": action}
+
+                if action == "set_active":
+                    for d in app.Documents:
+                        if str(d.FullName).lower() == dwg_path.lower():
+                            app.ActiveDocument = d
+                            return {"status": "activated", "drawing": dwg_path, "action": action}
+                    raise ToolExecutionFailure(f"Document not found among open drawings: {dwg_path}")
+
+                if action == "get_properties":
+                    doc = app.ActiveDocument
+                    return {
+                        "status": "properties",
+                        "name": doc.Name,
+                        "full_path": str(doc.FullName),
+                        "saved": doc.Saved,
+                        "action": action,
+                    }
+
+                # Fallback: send as command on active document
+                doc = app.ActiveDocument
+                doc.SendCommand(lisp_source + "\n")
+                self.supervisor.record_job_success()
+                return {"status": "submitted", "drawing": str(doc.FullName), "action": action}
+
+            except AutoCADUnavailable as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"operation": action})
+                raise
+            except ToolExecutionFailure:
+                raise
+            except Exception as exc:
+                self.supervisor.mark_com_health(False)
+                self.supervisor.record_job_failure(str(exc), {"operation": action})
+                raise ToolExecutionFailure(f"File management operation failed: {exc}") from exc
+            finally:
+                self.adapter.uninitialize_com()
+
+    def run_cad_command(self, drawing_path: Path, command: str, operation: str) -> dict[str, Any]:
+        with self._lock:
+            document = None
+            opened_by_us = False
+            try:
+                self.adapter.initialize_com()
+                app = self._connect()
+                self.supervisor.mark_com_health(True)
+                document, opened_by_us = self._get_or_open_document(app, drawing_path)
                 self.adapter.send_command(document, command)
                 self.supervisor.record_job_success()
                 write_audit_record(
@@ -164,4 +278,5 @@ class InteropManager:
                 self.supervisor.record_job_failure(str(exc), {"drawing_path": str(drawing_path), "operation": operation})
                 raise ToolExecutionFailure(f"COM CAD command execution failed: {exc}") from exc
             finally:
+                self._save_and_close_if_needed(document, opened_by_us)
                 self.adapter.uninitialize_com()

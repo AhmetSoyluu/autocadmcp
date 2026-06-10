@@ -110,9 +110,17 @@ class DWGService:
             except AutoCADUnavailable:
                 pass  # Fall through to core console
 
+        # Core console fallback (used when COM is unavailable)
         core_script = validated + '\n(command "_.QSAVE")\n(princ)\n'
         result = await self.core_console_manager.run_script(drawing_path, core_script, prefix=prefix)
-        self._ensure_core_console_success(result)
+        try:
+            self._ensure_core_console_success(result)
+        except ToolExecutionFailure as exc:
+            raise ToolExecutionFailure(
+                f"Both COM and Core Console execution failed. "
+                f"Ensure AutoCAD is running and the file is accessible. "
+                f"Core Console error: {exc}"
+            ) from exc
         stdout = str(result["stdout"])
         payload = {
             "drawing": str(drawing_path),
@@ -245,14 +253,15 @@ class DWGService:
     async def execute_file_management(self, request: FileManagementRequest) -> JobResult:
         if request.dwg_path:
             self.sandbox.validate(request.dwg_path)
-        lisp = self.file_management_service.build_lisp(
-            request.action, request.dwg_path, request.template_path,
-            request.save_format, request.save_changes,
-        )
-        # File management always needs COM (live session)
-        validated = self.lisp_runner.validate(lisp)
         try:
-            payload = self.interop_manager.run_cad_command(Path(request.dwg_path or "."), validated, request.action)
+            payload = self.interop_manager.run_file_command(
+                lisp_source="",
+                action=request.action,
+                dwg_path=request.dwg_path,
+                template_path=request.template_path,
+                save_format=request.save_format,
+                save_changes=request.save_changes,
+            )
             return JobResult(success=True, execution_mode="com", payload=payload)
         except AutoCADUnavailable as exc:
             raise ToolExecutionFailure(f"File management requires live AutoCAD session: {exc}") from exc

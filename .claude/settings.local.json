@@ -15,7 +15,8 @@
       "mcp__autocad-mcp-server__draw_ellipse",
       "mcp__autocad-mcp-server__draw_arc",
       "mcp__autocad-mcp-server__create_layer",
-      "mcp__autocad-mcp-server__draw_spline"
+      "mcp__autocad-mcp-server__draw_spline",
+      "Bash(python *)"
     ]
   },
   "enabledMcpjsonServers": [
