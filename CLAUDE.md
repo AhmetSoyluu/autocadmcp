@@ -85,9 +85,8 @@ Graceful degradation matters here. COM failures, hung AutoCAD sessions, and Core
 
 ## Elektrik Tesisat Çizim Standartları (Kalıcı Referans)
 
-Bu bölüm, gerçek Türkiye elektrik tesisat projelerinden (Ürgüp Belediye Başkanlığı Elektrik Abonelik ve Ürgüp Hayvan Bakımevi Elektrik Tesisat) öğrenilmiş çizim standartlarını içerir. **Yeni bir elektrik projesi çizerken bu kurallara uyulmalıdır.**
+Bu bölüm, Türkiye elektrik tesisat projelerinde uygulanan standart çizim kurallarını içerir. **Yeni bir elektrik projesi çizerken bu kurallara uyulmalıdır.**
 
-Kaynak dosyalar: `autocad_örnek_elektrik_rprojeşer/` dizininde.
 
 ### 1. Katman (Layer) Yapısı
 
@@ -395,7 +394,7 @@ Her paftada bulunması gereken bilgiler:
 - İL / İLÇE / BELEDİYE
 - ADRESİ
 - YAPTIRAN (ADI SOYADI)
-- PROJEYİ ÇİZEN / SEYİT GÖKSEL KESİTREN gibi
+- PROJEYİ ÇİZEN (Teknik Personel / Mühendis)
 - PROJE NO
 - ÇİZİM TARİHİ
 - ÖLÇEK (1/1000, 1/50, vb.)
@@ -409,7 +408,7 @@ Her paftada bulunması gereken bilgiler:
 - VERGİ D. ve NO.
 - PROJE MÜELLİFİ / SORUMLU İMZA VE KAŞE
 - SMM NO / BT.NO
-- ODA / MEDAŞ onay bilgileri
+- ODA / Elektrik Dağıtım Şirketi (EDŞ) onay bilgileri
 
 ### 8. Çizim Kuralları Özeti
 

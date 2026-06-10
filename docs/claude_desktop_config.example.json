@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "autocadmcp": {
-      "command": "C:\\Users\\asoyl\\OneDrive\\Masaüstü\\projes\\autocadmcp\\.venv\\Scripts\\python.exe",
+      "command": "C:\\path\\to\\your\\.venv\\Scripts\\python.exe",
       "args": [
         "-m",
         "autocad_mcp_server.main"
