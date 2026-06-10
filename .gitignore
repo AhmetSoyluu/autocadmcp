@@ -54,3 +54,13 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# AutoCAD drawings, backup files, lock files, and example projects
+autocad_örnek_elektrik_rprojeşer/
+workspace/_learn/
+*.dwg
+*.dxf
+*.bak
+*.dwl
+*.dwl2
+
